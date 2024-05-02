@@ -4,8 +4,7 @@ const { places, descriptors } = require('./seedHelpers');
 const Campground = require('../models/campground');
 
 mongoose.connect(
-  "mongodb+srv://node1:node1@cluster0.wz775d8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-);
+  "mongodb+srv://node1:node1@cluster0.wz775d8.mongodb.net/yelp-camp?retryWrites=true&w=majority&appName=Cluster0");
 
 const db = mongoose.connection;
 
