@@ -37,10 +37,14 @@ router.post(
     failureFlash: true,
     failureRedirect: "/login",
   }),
-  catchAsync(async (req, res) => {
+  (req, res) => {
+    console.log("Session before redirect:", req.session);
     req.flash("success", "welcome back!");
-    res.redirect("/campgrounds");
-  })
+    const redirectUrl = req.session.returnTo || "/campgrounds";
+    console.log("Redirect URL", redirectUrl, req.session.returnTo);
+    delete req.session.returnTo;
+    res.redirect(redirectUrl);
+  }
 );
 
 router.get("/logout", (req, res) => {
