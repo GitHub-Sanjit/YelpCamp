@@ -1,14 +1,12 @@
 mapboxgl.accessToken = mapToken;
-
 const map = new mapboxgl.Map({
   container: "map",
-  // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
-  style: "mapbox://styles/mapbox/dark-v11",
-  center: [-103.5917, 40.6699],
+  style: "mapbox://styles/mapbox/light-v10",
+  center: [-103.59179687498357, 40.66995747013945],
   zoom: 3,
 });
 
-map.on("load", () => {
+map.on("load", function () {
   // Add a new source from our GeoJSON data and
   // set the 'cluster' option to true. GL-JS will
   // add the point_count property to your source data.
@@ -28,7 +26,7 @@ map.on("load", () => {
     source: "campgrounds",
     filter: ["has", "point_count"],
     paint: {
-      // Use step expressions (https://docs.mapbox.com/style-spec/reference/expressions/#step)
+      // Use step expressions (https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-step)
       // with three steps to implement three types of circles:
       //   * Blue, 20px circles when point count is less than 100
       //   * Yellow, 30px circles when point count is between 100 and 750
@@ -36,13 +34,13 @@ map.on("load", () => {
       "circle-color": [
         "step",
         ["get", "point_count"],
-        "#51bbd6",
-        100,
-        "#f1f075",
-        750,
-        "#f28cb1",
+        "#00BCD4",
+        10,
+        "#2196F3",
+        30,
+        "#3F51B5",
       ],
-      "circle-radius": ["step", ["get", "point_count"], 20, 100, 30, 750, 40],
+      "circle-radius": ["step", ["get", "point_count"], 15, 10, 20, 30, 25],
     },
   });
 
@@ -52,7 +50,7 @@ map.on("load", () => {
     source: "campgrounds",
     filter: ["has", "point_count"],
     layout: {
-      "text-field": ["get", "point_count_abbreviated"],
+      "text-field": "{point_count_abbreviated}",
       "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
       "text-size": 12,
     },
@@ -72,14 +70,14 @@ map.on("load", () => {
   });
 
   // inspect a cluster on click
-  map.on("click", "clusters", (e) => {
+  map.on("click", "clusters", function (e) {
     const features = map.queryRenderedFeatures(e.point, {
       layers: ["clusters"],
     });
     const clusterId = features[0].properties.cluster_id;
     map
       .getSource("campgrounds")
-      .getClusterExpansionZoom(clusterId, (err, zoom) => {
+      .getClusterExpansionZoom(clusterId, function (err, zoom) {
         if (err) return;
 
         map.easeTo({
@@ -93,10 +91,9 @@ map.on("load", () => {
   // the unclustered-point layer, open a popup at
   // the location of the feature, with
   // description HTML from its properties.
-  map.on("click", "unclustered-point", (e) => {
+  map.on("click", "unclustered-point", function (e) {
+    const { popUpMarkup } = e.features[0].properties;
     const coordinates = e.features[0].geometry.coordinates.slice();
-    const mag = e.features[0].properties.mag;
-    const tsunami = e.features[0].properties.tsunami === 1 ? "yes" : "no";
 
     // Ensure that if the map is zoomed out such that
     // multiple copies of the feature are visible, the
@@ -105,16 +102,13 @@ map.on("load", () => {
       coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
     }
 
-    new mapboxgl.Popup()
-      .setLngLat(coordinates)
-      .setHTML(`magnitude: ${mag}<br>Was there a tsunami?: ${tsunami}`)
-      .addTo(map);
+    new mapboxgl.Popup().setLngLat(coordinates).setHTML(popUpMarkup).addTo(map);
   });
 
-  map.on("mouseenter", "clusters", () => {
+  map.on("mouseenter", "clusters", function () {
     map.getCanvas().style.cursor = "pointer";
   });
-  map.on("mouseleave", "clusters", () => {
+  map.on("mouseleave", "clusters", function () {
     map.getCanvas().style.cursor = "";
   });
 });
