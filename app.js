@@ -40,14 +40,10 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
-app.use(
-  mongoSanitize({
-    replaceWith: "_",
-  })
-);
+app.use(mongoSanitize({}));
 const secret = process.env.SECRET || "thisshouldbeabettersecret!";
 
-const store = new MongoDBStore({
+const store = MongoDBStore.create({
   mongoUrl: dbUrl,
   secret,
   touchAfter: 24 * 60 * 60,
@@ -155,3 +151,5 @@ const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Serving on port ${port}`);
 });
+
+// https://yelp-camp-hqrkny681-sanjitweb479s-projects.vercel.app
